@@ -1,0 +1,1035 @@
+{
+  "metadata": {
+    "title": "BITS Pilani — MSc DS & AI",
+    "cohort": "Cohort 3",
+    "trimester": 2026,
+    "timezone": "IST",
+    "source": "Trimester calendar"
+  },
+  "events": [
+    {
+      "week": 0,
+      "component": "TRIMESTER-1 COURSES LIVE ON LMS",
+      "date": "2026-05-15",
+      "startTime": null,
+      "endTime": null,
+      "course": null,
+      "weightage": 0,
+      "type": "info"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-22",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-22",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-22",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-23",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-23",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 1,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-23",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-29",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-29",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-29",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-30",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-30",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 2,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-05-30",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-05",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-05",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-05",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-06",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-06",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-06",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 3,
+      "component": "GRADED QUIZ-1",
+      "date": "2026-06-07",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 10,
+      "type": "quiz",
+      "endDate": "2026-06-09"
+    },
+    {
+      "week": 3,
+      "component": "GRADED QUIZ-1",
+      "date": "2026-06-07",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Pre-processing",
+      "weightage": 20,
+      "type": "quiz",
+      "endDate": "2026-06-09"
+    },
+    {
+      "week": 3,
+      "component": "GRADED QUIZ-1",
+      "date": "2026-06-07",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 10,
+      "type": "quiz",
+      "endDate": "2026-06-09"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-12",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-12",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-12",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-13",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-13",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 4,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-13",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-19",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-19",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-19",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-20",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-20",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 5,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-20",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-26",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-26",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-26",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-27",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-27",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-06-27",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 6,
+      "component": "GRADED QUIZ-2",
+      "date": "2026-06-28",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 15,
+      "type": "quiz",
+      "endDate": "2026-06-30"
+    },
+    {
+      "week": 6,
+      "component": "GRADED QUIZ-2",
+      "date": "2026-06-28",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Pre-processing",
+      "weightage": 20,
+      "type": "quiz",
+      "endDate": "2026-06-30"
+    },
+    {
+      "week": 6,
+      "component": "GRADED QUIZ-1",
+      "date": "2026-06-28",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Feature Engineering",
+      "weightage": 20,
+      "type": "quiz",
+      "endDate": "2026-06-30"
+    },
+    {
+      "week": 6,
+      "component": "GRADED QUIZ-2",
+      "date": "2026-06-28",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 15,
+      "type": "quiz",
+      "endDate": "2026-06-30"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-03",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-03",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-03",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-04",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-04",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 7,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-04",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-10",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-10",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Data Pre-processing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-10",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-11",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-11",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-11",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 8,
+      "component": "ASSIGNMENT",
+      "date": "2026-07-12",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 20,
+      "type": "assignment",
+      "endDate": "2026-08-08"
+    },
+    {
+      "week": 8,
+      "component": "ASSIGNMENT",
+      "date": "2026-07-12",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Pre-processing",
+      "weightage": 20,
+      "type": "assignment",
+      "endDate": "2026-08-08"
+    },
+    {
+      "week": 8,
+      "component": "ASSIGNMENT",
+      "date": "2026-07-12",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Feature Engineering",
+      "weightage": 20,
+      "type": "assignment",
+      "endDate": "2026-08-08"
+    },
+    {
+      "week": 8,
+      "component": "ASSIGNMENT",
+      "date": "2026-07-12",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 20,
+      "type": "assignment",
+      "endDate": "2026-08-08"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-17",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-17",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-17",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-18",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-18",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-18",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 9,
+      "component": "GRADED QUIZ-3",
+      "date": "2026-07-19",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 15,
+      "type": "quiz",
+      "endDate": "2026-07-21"
+    },
+    {
+      "week": 9,
+      "component": "GRADED QUIZ-2",
+      "date": "2026-07-19",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Feature Engineering",
+      "weightage": 20,
+      "type": "quiz",
+      "endDate": "2026-07-21"
+    },
+    {
+      "week": 9,
+      "component": "GRADED QUIZ-3",
+      "date": "2026-07-19",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 15,
+      "type": "quiz",
+      "endDate": "2026-07-21"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-24",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-24",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-24",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-25",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-25",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 10,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-25",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-31",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-31",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-07-31",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-01",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-01",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 11,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-01",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-07",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-07",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-07",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-08",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Feature Engineering",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-08",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 12,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-08",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-14",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-14",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-14",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-15",
+      "startTime": "18:30",
+      "endTime": "19:30",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-15",
+      "startTime": "19:45",
+      "endTime": "20:45",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 13,
+      "component": "LIVE CLASS SESSION",
+      "date": "2026-08-15",
+      "startTime": "21:00",
+      "endTime": "22:00",
+      "course": null,
+      "weightage": null,
+      "type": "live"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-1",
+      "date": "2026-08-22",
+      "startTime": "09:30",
+      "endTime": "11:30",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-1",
+      "date": "2026-08-22",
+      "startTime": "12:30",
+      "endTime": "14:30",
+      "course": "Data Pre-processing",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-1",
+      "date": "2026-08-23",
+      "startTime": "09:30",
+      "endTime": "11:30",
+      "course": "Feature Engineering",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-1",
+      "date": "2026-08-23",
+      "startTime": "12:30",
+      "endTime": "14:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-2",
+      "date": "2026-08-30",
+      "startTime": "09:30",
+      "endTime": "11:30",
+      "course": "Data Pre-processing",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-2",
+      "date": "2026-08-29",
+      "startTime": "12:30",
+      "endTime": "14:30",
+      "course": "Feature Engineering",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-2",
+      "date": "2026-08-29",
+      "startTime": "09:30",
+      "endTime": "11:30",
+      "course": "Data Visualization & Storytelling",
+      "weightage": 40,
+      "type": "exam"
+    },
+    {
+      "week": 14,
+      "component": "TRIMESTER EXAMS SLOT-2",
+      "date": "2026-08-30",
+      "startTime": "12:30",
+      "endTime": "14:30",
+      "course": "Statistical Modelling & Inferencing",
+      "weightage": 40,
+      "type": "exam"
+    }
+  ]
+}
