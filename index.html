@@ -717,10 +717,10 @@ body {
   </div>
 
   <div class="setup-bar" id="setupBar" style="display:none">
-    <label>🔑 GitHub Token:</label>
+    <label>🔑 Write Token:</label>
     <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" />
-    <button class="btn btn-accent" onclick="saveToken()">Save & Load</button>
-    <span style="font-size:0.8rem;color:var(--text2);margin-left:auto">Optional — needed for editing Zoom links and registrations.</span>
+    <button class="btn btn-accent" onclick="saveToken()">Save & Reload</button>
+    <span style="font-size:0.8rem;color:var(--text2);margin-left:auto">Needed to save Zoom links & registrations. Reading works without it.</span>
   </div>
 
   <div class="controls">
@@ -783,24 +783,19 @@ const EVENT_STYLES = {
   'TRIMESTER EXAMS': { type: 'exam', color: '#f87171' },
 };
 
-// ─── Fetch Schedule ───
+// ─── Fetch Schedule (raw URL — no auth needed for public repos) ───
 async function fetchSchedule() {
   const repo = getRepoInfo();
   if (!repo) return null;
 
-  const headers = {};
-  if (GH_TOKEN) headers['Authorization'] = `token ${GH_TOKEN}`;
-
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/schedule.json`, { headers });
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/refs/heads/main/schedule.json`);
 
   if (!res.ok) {
     if (res.status === 404) return null;
     throw new Error(`Failed to fetch schedule: ${res.status}`);
   }
 
-  const json = await res.json();
-  const content = atob(json.content);
-  return JSON.parse(content);
+  return await res.json();
 }
 
 function eventsFromSchedule(schedule) {
@@ -849,24 +844,29 @@ async function fetchRepoData() {
   const repo = getRepoInfo();
   if (!repo) return null;
 
-  const headers = {};
-  if (GH_TOKEN) headers['Authorization'] = `token ${GH_TOKEN}`;
-
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, { headers });
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/refs/heads/main/data.json`);
 
   if (!res.ok) {
     if (res.status === 404) return null;
     throw new Error(`Failed to fetch data: ${res.status}`);
   }
 
-  const json = await res.json();
-  const content = atob(json.content);
-  return JSON.parse(content);
+  return await res.json();
 }
 
 async function saveRepoData() {
   const repo = getRepoInfo();
   if (!repo) return false;
+
+  const body = {
+    message: 'Update data.json',
+    content: btoa(JSON.stringify(data, null, 2)),
+  };
+
+  // Include SHA only if we have it (for updates)
+  if (data._sha) {
+    body.sha = data._sha;
+  }
 
   const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
     method: 'PUT',
@@ -874,15 +874,30 @@ async function saveRepoData() {
       'Authorization': `token ${GH_TOKEN}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      message: 'Update data.json',
-      content: btoa(JSON.stringify(data, null, 2)),
-      sha: data._sha || '',
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const err = await res.text();
+    // If file doesn't exist, try to create it
+    if (res.status === 404 && !data._sha) {
+      const createRes = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GH_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: 'Create data.json',
+          content: btoa(JSON.stringify(data, null, 2)),
+        }),
+      });
+      if (!createRes.ok) {
+        const createErr = await createRes.text();
+        throw new Error(`Failed to create data.json: ${createRes.status} - ${createErr}`);
+      }
+      return true;
+    }
     throw new Error(`Failed to save: ${res.status} - ${err}`);
   }
 
@@ -953,7 +968,7 @@ function saveToken() {
   GH_TOKEN = token;
   localStorage.setItem('gh_token', token);
   document.getElementById('setupBar').style.display = 'none';
-  showStatus('Token saved', 'success');
+  showStatus('Token saved — reloading...', 'success');
   loadCalendar();
 }
 
@@ -1298,19 +1313,18 @@ async function loadCalendar() {
     console.error(e);
   }
 
-  // Load data from GitHub (requires token for write, optional for read)
-  if (GH_TOKEN) {
-    try {
-      const repoData = await fetchRepoData();
-      if (repoData) {
-        data = repoData;
-        document.getElementById('dataStatus').textContent += ` | data loaded`;
-      } else {
-        document.getElementById('dataStatus').textContent += ` | no data yet`;
-      }
-    } catch (e) {
-      document.getElementById('dataStatus').textContent += ` | data load failed`;
+  // Load data from GitHub (raw URL works for public repos — no token needed for read)
+  try {
+    const repoData = await fetchRepoData();
+    if (repoData) {
+      data = repoData;
+      document.getElementById('dataStatus').textContent += ` | data loaded`;
+    } else {
+      document.getElementById('dataStatus').textContent += ` | no data yet`;
     }
+  } catch (e) {
+    document.getElementById('dataStatus').textContent += ` | data load failed`;
+    console.error(e);
   }
 
   renderCalendar();
