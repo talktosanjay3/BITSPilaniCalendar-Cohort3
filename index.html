@@ -716,11 +716,11 @@ body {
     <div class="legend-item"><div class="legend-dot" style="background:var(--exam)"></div>Exam</div>
   </div>
 
-  <div class="setup-bar" id="setupBar">
+  <div class="setup-bar" id="setupBar" style="display:none">
     <label>🔑 GitHub Token:</label>
     <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" />
     <button class="btn btn-accent" onclick="saveToken()">Save & Load</button>
-    <span style="font-size:0.8rem;color:var(--text2);margin-left:auto">Readonly token pre-configured. For editing (Zoom links), generate a write-access token and paste it here.</span>
+    <span style="font-size:0.8rem;color:var(--text2);margin-left:auto">Optional — needed for editing Zoom links and registrations.</span>
   </div>
 
   <div class="controls">
@@ -788,9 +788,10 @@ async function fetchSchedule() {
   const repo = getRepoInfo();
   if (!repo) return null;
 
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/schedule.json`, {
-    headers: { 'Authorization': `token ${GH_TOKEN}` },
-  });
+  const headers = {};
+  if (GH_TOKEN) headers['Authorization'] = `token ${GH_TOKEN}`;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/schedule.json`, { headers });
 
   if (!res.ok) {
     if (res.status === 404) return null;
@@ -848,9 +849,10 @@ async function fetchRepoData() {
   const repo = getRepoInfo();
   if (!repo) return null;
 
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
-    headers: { 'Authorization': `token ${GH_TOKEN}` },
-  });
+  const headers = {};
+  if (GH_TOKEN) headers['Authorization'] = `token ${GH_TOKEN}`;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, { headers });
 
   if (!res.ok) {
     if (res.status === 404) return null;
@@ -957,16 +959,8 @@ function saveToken() {
 
 function loadToken() {
   const token = localStorage.getItem('gh_token');
-  const readonlyToken = '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';
-
   if (token) {
     GH_TOKEN = token;
-    document.getElementById('setupBar').style.display = 'none';
-  } else {
-    // Pre-fill readonly token
-    document.getElementById('ghToken').value = readonlyToken;
-    GH_TOKEN = readonlyToken;
-    document.getElementById('setupBar').style.display = 'none';
   }
 }
 
@@ -1071,7 +1065,7 @@ async function submitRegistration() {
 
 async function saveDataAndUpdate() {
   if (!GH_TOKEN) {
-    showStatus('No GitHub token set', 'error');
+    showStatus('Enter a write-access token above to save changes', 'error');
     return false;
   }
   try {
@@ -1289,26 +1283,22 @@ async function loadCalendar() {
   const container = document.getElementById('calendar');
   container.innerHTML = `<div class="loading"><div class="spinner"></div>Loading calendar...</div>`;
 
-  // Try to load schedule from GitHub
-  if (GH_TOKEN) {
-    try {
-      const schedule = await fetchSchedule();
-      if (schedule) {
-        scheduleData = schedule;
-        rawEvents = eventsFromSchedule(schedule);
-        document.getElementById('dataStatus').textContent = `Loaded schedule from repo`;
-      } else {
-        document.getElementById('dataStatus').textContent = `No schedule in repo`;
-      }
-    } catch (e) {
-      document.getElementById('dataStatus').textContent = `Schedule load failed`;
-      console.error(e);
+  // Load schedule from GitHub (works without auth for public repos)
+  try {
+    const schedule = await fetchSchedule();
+    if (schedule) {
+      scheduleData = schedule;
+      rawEvents = eventsFromSchedule(schedule);
+      document.getElementById('dataStatus').textContent = `Loaded schedule from repo`;
+    } else {
+      document.getElementById('dataStatus').textContent = `No schedule in repo`;
     }
-  } else {
-    document.getElementById('dataStatus').textContent = `No token — enter token above`;
+  } catch (e) {
+    document.getElementById('dataStatus').textContent = `Schedule load failed`;
+    console.error(e);
   }
 
-  // Try to load data from GitHub
+  // Load data from GitHub (requires token for write, optional for read)
   if (GH_TOKEN) {
     try {
       const repoData = await fetchRepoData();
