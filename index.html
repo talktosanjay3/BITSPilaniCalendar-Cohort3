@@ -720,6 +720,7 @@ body {
     <label>🔑 GitHub Token:</label>
     <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" />
     <button class="btn btn-accent" onclick="saveToken()">Save & Load</button>
+    <span style="font-size:0.8rem;color:var(--text2);margin-left:auto">Readonly token pre-configured. For editing (Zoom links), generate a write-access token and paste it here.</span>
   </div>
 
   <div class="controls">
@@ -956,8 +957,15 @@ function saveToken() {
 
 function loadToken() {
   const token = localStorage.getItem('gh_token');
+  const readonlyToken = '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';
+
   if (token) {
     GH_TOKEN = token;
+    document.getElementById('setupBar').style.display = 'none';
+  } else {
+    // Pre-fill readonly token
+    document.getElementById('ghToken').value = readonlyToken;
+    GH_TOKEN = readonlyToken;
     document.getElementById('setupBar').style.display = 'none';
   }
 }
