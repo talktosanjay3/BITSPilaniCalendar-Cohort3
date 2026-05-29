@@ -1363,6 +1363,9 @@ async function loadCalendar() {
   }
 
   renderCalendar();
+
+  // Auto-scroll to today's date
+  setTimeout(scrollToToday, 300);
 }
 
 // ─── Start ───
