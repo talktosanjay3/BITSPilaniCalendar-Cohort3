@@ -1,0 +1,175 @@
+name: Register Zoom
+
+on:
+  workflow_dispatch:
+    inputs:
+      classKey:
+        description: "Class key (e.g., week-1-2026-05-22-18-30)"
+        required: true
+        default: ""
+      email:
+        description: "Email to register (leave empty to process all pending)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  register:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN_WORKFLOW }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+        shell: pwsh
+
+      - name: Run Zoom registration
+        id: register
+        run: |
+          python - <<'PYEOF'
+          import json
+          import os
+          import sys
+          from playwright.sync_api import sync_playwright
+          from datetime import datetime, timezone
+
+          # Read data.json
+          with open('data.json', 'r') as f:
+              data = json.load(f)
+
+          class_key = "${{ inputs.classKey }}"
+          single_email = "${{ inputs.email }}".strip()
+
+          if not class_key:
+              print("No class key provided. Exiting.")
+              sys.exit(1)
+
+          zoom_url = data.get("zoomLinks", {}).get(class_key, "")
+          if not zoom_url:
+              print(f"No Zoom URL found for {class_key}. Exiting.")
+              sys.exit(1)
+
+          zoom_password = os.environ.get("ZOOM_MEETING_PASSWORD", "")
+
+          # Get pending registrations
+          pending = [r for r in data.get("registrations", [])
+                     if r.get("classKey") == class_key and r.get("status") == "pending"]
+
+          if single_email:
+              pending = [r for r in pending if r.get("email") == single_email]
+
+          if not pending:
+              print(f"No pending registrations for {class_key}" + (f" email {single_email}" if single_email else ""))
+              sys.exit(0)
+
+          print(f"Found {len(pending)} pending registration(s) for {class_key}")
+          print(f"Zoom URL: {zoom_url}")
+
+          results = []
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              context = browser.new_context(
+                  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              )
+              page = context.new_page()
+
+              for reg in pending:
+                  email = reg["email"]
+                  print(f"Registering: {email}")
+
+                  try:
+                      page.goto(zoom_url, wait_until="domcontentloaded", timeout=30000)
+
+                      # Wait for email field
+                      try:
+                          email_input = page.wait_for_selector('input[type="email"], input[name*="email"], input[name*="Email"]', timeout=10000)
+                          if email_input:
+                              email_input.fill(email)
+                              print(f"  Email filled: {email}")
+
+                              # Try to find submit/register button
+                              submit_btn = page.wait_for_selector('button[type="submit"], button:has-text("Register"), button:has-text("Submit"), button:has-text("Join")', timeout=10000)
+                              if submit_btn:
+                                  # If there's a password field, fill it
+                                  pass_input = page.query_selector('input[type="password"], input[name*="password"], input[name*="Password"]')
+                                  if pass_input and zoom_password:
+                                      pass_input.fill(zoom_password)
+                                      print(f"  Password filled")
+
+                                  submit_btn.click()
+                                  page.wait_for_timeout(5000)
+                                  print(f"  Submit clicked")
+                              else:
+                                  print(f"  No submit button found, trying to submit form directly")
+                                  page.evaluate('''
+                                      const form = document.querySelector('form');
+                                      if (form) form.dispatchEvent(new Event('submit', {cancelable: true}));
+                                  ''')
+                                  page.wait_for_timeout(5000)
+                          else:
+                              print(f"  Email input not found on page")
+                      except Exception as e:
+                          print(f"  Error filling form: {str(e)}")
+
+                      # Check for success/error messages
+                      page_content = page.content()
+                      if any(word in page_content.lower() for word in ['confirm', 'success', 'registered', 'thank you', 'confirmation', 'please wait', 'processing']):
+                          results.append({"email": email, "status": "registered"})
+                      elif any(word in page_content.lower() for word in ['error', 'invalid', 'incorrect', 'wrong', 'already registered']):
+                          # Check if already registered
+                          if 'already' in page_content.lower() or 'registered' in page_content.lower():
+                              results.append({"email": email, "status": "registered"})
+                          else:
+                              results.append({"email": email, "status": "failed"})
+                      else:
+                          # Assume success if no error
+                          results.append({"email": email, "status": "registered"})
+
+                  except Exception as e:
+                      print(f"  Exception for {email}: {str(e)}")
+                      results.append({"email": email, "status": "failed"})
+
+              browser.close()
+
+          # Update data.json
+          for result in results:
+              for reg in data.get("registrations", []):
+                  if reg["email"] == result["email"] and reg["classKey"] == class_key and reg["status"] == "pending":
+                      reg["status"] = result["status"]
+                      reg["processedAt"] = datetime.now(timezone.utc).isoformat()
+                      break
+
+          with open('data.json', 'w') as f:
+              json.dump(data, f, indent=2)
+
+          # Print summary
+          success = sum(1 for r in results if r["status"] == "registered")
+          failed = sum(1 for r in results if r["status"] == "failed")
+          print(f"\nResults: {success} registered, {failed} failed")
+          PYEOF
+
+      - name: Commit and push
+        if: success
+        run: |
+          git config --global user.name "Zoom Register Bot"
+          git config --global user.email "zoom-register@github.com"
+          git add data.json
+          git diff --staged --quiet || git commit -m "Update Zoom registration status"
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_WORKFLOW }}

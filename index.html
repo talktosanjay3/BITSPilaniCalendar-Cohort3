@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BITS Pilani Calendar — MSc DS & AI Cohort 3</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1a1a24;
+  --border: #2a2a3a;
+  --text: #e4e4e8;
+  --text2: #9494a8;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --viz: #6366f1;
+  --preprocess: #8b5cf6;
+  --stats: #ec4899;
+  --feature: #f59e0b;
+  --quiz: #64748b;
+  --assignment: #10b981;
+  --exam: #ef4444;
+  --tba: #475569;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 48px 24px 32px;
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: var(--text2);
+  font-size: 0.95rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 0;
+  margin-bottom: 8px;
+}
+
+.controls-left, .controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.view-toggle button {
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.view-toggle button:hover:not(.active) {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+  background: var(--surface2);
+}
+
+.btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background: var(--accent2);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-success {
+  background: var(--assignment);
+  border-color: var(--assignment);
+  color: #fff;
+}
+
+/* Setup bar */
+.setup-bar {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.setup-bar label {
+  font-size: 0.85rem;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.setup-bar input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setup-bar input:focus {
+  border-color: var(--accent);
+}
+
+/* Calendar grid */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.week-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.week-header {
+  padding: 16px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.week-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* Weekly view */
+.week-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.day-column {
+  padding: 0;
+}
+
+.day-column:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.day-label {
+  padding: 12px 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text2);
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border);
+}
+
+.day-label.today {
+  color: var(--accent2);
+  background: rgba(99,102,241,0.08);
+}
+
+/* Daily view */
+.daily-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.daily-day {
+  border-bottom: 1px solid var(--border);
+}
+
+.daily-day:last-child {
+  border-bottom: none;
+}
+
+.daily-day-header {
+  padding: 12px 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text2);
+  background: rgba(255,255,255,0.02);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.daily-day-header.today {
+  color: var(--accent2);
+  background: rgba(99,102,241,0.08);
+}
+
+/* Class cards */
+.class-card {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.class-card:last-child {
+  border-bottom: none;
+}
+
+.class-card:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.class-card.today {
+  background: rgba(99,102,241,0.04);
+}
+
+.class-card.today::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.time-block {
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.time {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.time-range {
+  font-size: 0.75rem;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.class-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.class-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.class-type {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.class-type.live { background: rgba(99,102,241,0.15); color: var(--accent2); }
+.class-type.quiz { background: rgba(100,116,139,0.15); color: #94a3b8; }
+.class-type.assignment { background: rgba(16,185,129,0.15); color: #34d399; }
+.class-type.exam { background: rgba(239,68,68,0.15); color: #f87171; }
+
+.class-meta {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+.class-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.zoom-link-btn {
+  padding: 6px 14px;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: var(--radius-sm);
+  color: var(--accent2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.zoom-link-btn:hover {
+  background: rgba(99,102,241,0.2);
+  border-color: var(--accent);
+}
+
+.zoom-link-btn.has-link {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.register-btn {
+  padding: 6px 14px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: var(--radius-sm);
+  color: #34d399;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.register-btn:hover {
+  background: rgba(16,185,129,0.2);
+  border-color: #34d399;
+}
+
+.register-btn.registered {
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.3);
+  color: #34d399;
+  cursor: default;
+}
+
+/* Edit inline */
+.edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  margin-top: 4px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* Course color dot */
+.color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+}
+
+.modal h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.modal p {
+  color: var(--text2);
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.modal input:focus {
+  border-color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Status bar */
+.status-bar {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 200;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 360px;
+}
+
+.status-bar.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.status-bar.success {
+  background: rgba(16,185,129,0.15);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: #34d399;
+}
+
+.status-bar.error {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #f87171;
+}
+
+.status-bar.info {
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  color: var(--accent2);
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text2);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 0;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text2);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .header { padding: 32px 16px 24px; }
+  .header h1 { font-size: 1.5rem; }
+  .week-grid { grid-template-columns: 1fr; }
+  .day-column:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .controls { flex-direction: column; align-items: stretch; }
+  .controls-left, .controls-right { justify-content: center; }
+  .class-card { flex-wrap: wrap; }
+  .class-actions { width: 100%; justify-content: flex-end; margin-top: 8px; }
+  .setup-bar { flex-direction: column; align-items: stretch; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+
+/* Quiz/Assignment/Exam special styling */
+.event-card {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: background 0.15s;
+}
+
+.event-card:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.event-card.today {
+  background: rgba(99,102,241,0.04);
+}
+
+.event-card.today::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.event-info {
+  flex: 1;
+}
+
+.event-dates {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+.event-weight {
+  font-size: 0.75rem;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.no-zoom {
+  font-size: 0.75rem;
+  color: var(--tba);
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>BITS Pilani — MSc DS & AI</h1>
+    <p>Cohort 3 · Learning Calendar · Trimester 2026</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--viz)"></div>Data Visualization</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--preprocess)"></div>Data Pre-processing</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--stats)"></div>Statistical Modelling</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--feature)"></div>Feature Engineering</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--quiz)"></div>Quiz</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--assignment)"></div>Assignment</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--exam)"></div>Exam</div>
+  </div>
+
+  <div class="setup-bar" id="setupBar">
+    <label>🔑 GitHub Token:</label>
+    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" />
+    <button class="btn btn-accent" onclick="saveToken()">Save & Load</button>
+  </div>
+
+  <div class="controls">
+    <div class="controls-left">
+      <div class="view-toggle">
+        <button class="active" id="btnWeekly" onclick="setView('weekly')">Weekly</button>
+        <button id="btnDaily" onclick="setView('daily')">Daily</button>
+      </div>
+      <button class="btn btn-sm" onclick="scrollToToday()">⊙ Today</button>
+    </div>
+    <div class="controls-right">
+      <span id="dataStatus" style="font-size:0.8rem;color:var(--text2)"></span>
+    </div>
+  </div>
+
+  <div id="calendar" class="calendar">
+    <div class="loading">
+      <div class="spinner"></div>
+      Loading calendar...
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <h3>Register for Class</h3>
+    <p id="registerClassInfo"></p>
+    <input type="email" id="registerEmail" placeholder="your@email.com" />
+    <div class="modal-actions">
+      <button class="btn" onclick="closeRegisterModal()">Cancel</button>
+      <button class="btn btn-success" onclick="submitRegistration()">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status toast -->
+<div class="status-bar" id="statusBar"></div>
+
+<script>
+// ─── CSV Data (embedded from WeekCompo.csv) ───
+const CSV_DATA = `Week,Component,Start Date,End Date,Start Time (IST),End Time (IST),Course,Weightage,Source
+0,TRIMESTER-1 COURSES LIVE ON LMS,2026-05-15,2026-05-15,,,,0,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-22,2026-05-22,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-22,2026-05-22,19:45,20:45,Data Pre-processing, ,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-22,2026-05-22,21:00,22:00,, ,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-23,2026-05-23,18:30,19:30,, ,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-23,2026-05-23,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+1,LIVE CLASS SESSION,2026-05-23,2026-05-23,21:00,22:00,, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-29,2026-05-29,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-29,2026-05-29,19:45,20:45,Data Pre-processing, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-29,2026-05-29,21:00,22:00,, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-30,2026-05-30,18:30,19:30,, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-30,2026-05-30,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+2,LIVE CLASS SESSION,2026-05-30,2026-05-30,21:00,22:00,, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-05,2026-06-05,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-05,2026-06-05,19:45,20:45,Data Pre-processing, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-05,2026-06-05,21:00,22:00,, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-06,2026-06-06,18:30,19:30,, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-06,2026-06-06,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+3,LIVE CLASS SESSION,2026-06-06,2026-06-06,21:00,22:00,, ,Trimester calendar
+3,GRADED QUIZ-1,2026-06-07,2026-06-09,00:00,23:59,Statistical Modelling & Inferencing,10,Trimester calendar
+3,GRADED QUIZ-1,2026-06-07,2026-06-09,00:00,23:59,Data Pre-processing,20,Trimester calendar
+3,GRADED QUIZ-1,2026-06-07,2026-06-09,00:00,23:59,Data Visualization & Storytelling,10,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-12,2026-06-12,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-12,2026-06-12,19:45,20:45,Data Pre-processing, ,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-12,2026-06-12,21:00,22:00,, ,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-13,2026-06-13,18:30,19:30,, ,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-13,2026-06-13,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+4,LIVE CLASS SESSION,2026-06-13,2026-06-13,21:00,22:00,, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-19,2026-06-19,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-19,2026-06-19,19:45,20:45,Data Pre-processing, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-19,2026-06-19,21:00,22:00,, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-20,2026-06-20,18:30,19:30,Feature Engineering, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-20,2026-06-20,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+5,LIVE CLASS SESSION,2026-06-20,2026-06-20,21:00,22:00,, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-26,2026-06-26,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-26,2026-06-26,19:45,20:45,Data Pre-processing, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-26,2026-06-26,21:00,22:00,, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-27,2026-06-27,18:30,19:30,Feature Engineering, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-27,2026-06-27,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+6,LIVE CLASS SESSION,2026-06-27,2026-06-27,21:00,22:00,, ,Trimester calendar
+6,GRADED QUIZ-2,2026-06-28,2026-06-30,00:00,23:59,Statistical Modelling & Inferencing,15,Trimester calendar
+6,GRADED QUIZ-2,2026-06-28,2026-06-30,00:00,23:59,Data Pre-processing,20,Trimester calendar
+6,GRADED QUIZ-2,2026-06-28,2026-06-30,00:00,23:59,Feature Engineering,20,Trimester calendar
+6,GRADED QUIZ-2,2026-06-28,2026-06-30,00:00,23:59,Data Visualization & Storytelling,15,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-03,2026-07-03,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-03,2026-07-03,19:45,20:45,Data Pre-processing, ,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-03,2026-07-03,21:00,22:00,, ,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-04,2026-07-04,18:30,19:30,Feature Engineering, ,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-04,2026-07-04,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+7,LIVE CLASS SESSION,2026-07-04,2026-07-04,21:00,22:00,, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-10,2026-07-10,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-10,2026-07-10,19:45,20:45,Data Pre-processing, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-10,2026-07-10,21:00,22:00,, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-11,2026-07-11,18:30,19:30,Feature Engineering, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-11,2026-07-11,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+8,LIVE CLASS SESSION,2026-07-11,2026-07-11,21:00,22:00,, ,Trimester calendar
+8,ASSIGNMENT,2026-07-12,2026-08-08,00:00,23:59,Statistical Modelling & Inferencing,20,Trimester calendar
+8,ASSIGNMENT,2026-07-12,2026-08-08,00:00,23:59,Data Pre-processing,20,Trimester calendar
+8,ASSIGNMENT,2026-07-12,2026-08-08,00:00,23:59,Feature Engineering,20,Trimester calendar
+8,ASSIGNMENT,2026-07-12,2026-08-08,00:00,23:59,Data Visualization & Storytelling,20,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-17,2026-07-17,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-17,2026-07-17,19:45,20:45,, ,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-17,2026-07-17,21:00,22:00,, ,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-18,2026-07-18,18:30,19:30,Feature Engineering, ,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-18,2026-07-18,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+9,LIVE CLASS SESSION,2026-07-18,2026-07-18,21:00,22:00,, ,Trimester calendar
+9,GRADED QUIZ-3,2026-07-19,2026-07-21,00:00,23:59,Statistical Modelling & Inferencing,15,Trimester calendar
+9,GRADED QUIZ-2,2026-07-19,2026-07-21,00:00,23:59,Feature Engineering,20,Trimester calendar
+9,GRADED QUIZ-3,2026-07-19,2026-07-21,00:00,23:59,Data Visualization & Storytelling,15,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-24,2026-07-24,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-24,2026-07-24,19:45,20:45,, ,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-24,2026-07-24,21:00,22:00,, ,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-25,2026-07-25,18:30,19:30,Feature Engineering, ,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-25,2026-07-25,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+10,LIVE CLASS SESSION,2026-07-25,2026-07-25,21:00,22:00,, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-07-31,2026-07-31,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-07-31,2026-07-31,19:45,20:45,, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-07-31,2026-07-31,21:00,22:00,, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-08-01,2026-08-01,18:30,19:30,Feature Engineering, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-08-01,2026-08-01,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+11,LIVE CLASS SESSION,2026-08-01,2026-08-01,21:00,22:00,, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-07,2026-08-07,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-07,2026-08-07,19:45,20:45,, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-07,2026-08-07,21:00,22:00,, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-08,2026-08-08,18:30,19:30,Feature Engineering, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-08,2026-08-08,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+12,LIVE CLASS SESSION,2026-08-08,2026-08-08,21:00,22:00,, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-14,2026-08-14,18:30,19:30,Data Visualization & Storytelling, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-14,2026-08-14,19:45,20:45,, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-14,2026-08-14,21:00,22:00,, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-15,2026-08-15,18:30,19:30,, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-15,2026-08-15,19:45,20:45,Statistical Modelling & Inferencing, ,Trimester calendar
+13,LIVE CLASS SESSION,2026-08-15,2026-08-15,21:00,22:00,, ,Trimester calendar
+14,TRIMESTER EXAMS SLOT-1,2026-08-22,2026-08-22,09:30,11:30,Statistical Modelling & Inferencing,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-1,2026-08-22,2026-08-22,12:30,14:30,Data Pre-processing,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-1,2026-08-23,2026-08-23,09:30,11:30,Feature Engineering,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-1,2026-08-23,2026-08-23,12:30,14:30,Data Visualization & Storytelling,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-2,2026-08-30,2026-08-30,09:30,11:30,Data Pre-processing,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-2,2026-08-29,2026-08-29,12:30,14:30,Feature Engineering,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-2,2026-08-29,2026-08-29,09:30,11:30,Data Visualization & Storytelling,40,Trimester calendar
+14,TRIMESTER EXAMS SLOT-2,2026-08-30,2026-08-30,12:30,14:30,Statistical Modelling & Inferencing,40,Trimester calendar`;
+
+// ─── State ───
+let GH_TOKEN = '';
+let data = { zoomLinks: {}, registrations: [] };
+let currentView = 'weekly';
+let rawEvents = [];
+
+// ─── Course colors ───
+const COURSE_COLORS = {
+  'Data Visualization & Storytelling': '#6366f1',
+  'Data Pre-processing': '#8b5cf6',
+  'Statistical Modelling & Inferencing': '#ec4899',
+  'Feature Engineering': '#f59e0b',
+};
+
+const EVENT_STYLES = {
+  'LIVE CLASS SESSION': { type: 'live', color: 'var(--accent2)' },
+  'GRADED QUIZ': { type: 'quiz', color: '#94a3b8' },
+  'ASSIGNMENT': { type: 'assignment', color: '#34d399' },
+  'TRIMESTER EXAMS': { type: 'exam', color: '#f87171' },
+};
+
+// ─── Parse CSV ───
+function parseCSV() {
+  const lines = CSV_DATA.trim().split('\n').slice(1);
+  const events = [];
+
+  lines.forEach(line => {
+    const cols = line.split(',');
+    if (cols.length < 7) return;
+
+    const week = cols[0].trim();
+    const component = cols[1].trim();
+    const startDate = cols[2].trim();
+    const endDate = cols[3].trim();
+    const startTime = cols[4].trim();
+    const endTime = cols[5].trim();
+    const course = cols[6].trim();
+    const weightage = cols[7].trim();
+
+    if (!startDate) return;
+
+    // Determine day of week from date
+    const date = new Date(startDate + 'T00:00:00');
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+    // Build class key
+    const dateStr = startDate.replace(/-/g, '');
+    const timeStr = startTime.replace(':', '-');
+    const classKey = `week-${week}-${dateStr}-${timeStr}`;
+
+    events.push({
+      week: parseInt(week),
+      component,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      course: course || 'TBA',
+      weightage: weightage || null,
+      dayName,
+      date: startDate,
+      classKey,
+      isLive: component.includes('LIVE'),
+      isQuiz: component.includes('QUIZ'),
+      isAssignment: component.includes('ASSIGNMENT'),
+      isExam: component.includes('EXAM'),
+    });
+  });
+
+  return events;
+}
+
+// ─── GitHub API ───
+async function fetchRepoData() {
+  const repo = getRepoInfo();
+  if (!repo) return null;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
+    headers: { 'Authorization': `token ${GH_TOKEN}` },
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(`Failed to fetch data: ${res.status}`);
+  }
+
+  const json = await res.json();
+  const content = atob(json.content);
+  return JSON.parse(content);
+}
+
+async function saveRepoData() {
+  const repo = getRepoInfo();
+  if (!repo) return false;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${GH_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      message: 'Update data.json',
+      content: btoa(JSON.stringify(data, null, 2)),
+      sha: data._sha || '',
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Failed to save: ${res.status} - ${err}`);
+  }
+
+  const json = await res.json();
+  data._sha = json.content.sha;
+  return true;
+}
+
+function getRepoInfo() {
+  // Try to detect from URL or use placeholder
+  const path = window.location.pathname;
+  const match = path.match(/\/([^/]+)\/([^/]+)\/?/);
+  if (match) return `${match[1]}/${match[2]}`;
+  return null;
+}
+
+function detectRepo() {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return { owner: 'your-username', repo: 'your-repo' };
+  }
+  const path = window.location.pathname.slice(1).split('/');
+  if (path.length >= 2 && path[0] && path[1]) {
+    return { owner: path[0], repo: path[1] };
+  }
+  return null;
+}
+
+// ─── Token ───
+function saveToken() {
+  const token = document.getElementById('ghToken').value.trim();
+  if (!token) {
+    showStatus('Please enter a GitHub token', 'error');
+    return;
+  }
+  GH_TOKEN = token;
+  localStorage.setItem('gh_token', token);
+  document.getElementById('setupBar').style.display = 'none';
+  showStatus('Token saved', 'success');
+  loadCalendar();
+}
+
+function loadToken() {
+  const token = localStorage.getItem('gh_token');
+  if (token) {
+    GH_TOKEN = token;
+    document.getElementById('setupBar').style.display = 'none';
+  }
+}
+
+// ─── View toggle ───
+function setView(view) {
+  currentView = view;
+  document.getElementById('btnWeekly').classList.toggle('active', view === 'weekly');
+  document.getElementById('btnDaily').classList.toggle('active', view === 'daily');
+  renderCalendar();
+}
+
+function scrollToToday() {
+  const todayEl = document.querySelector('.today');
+  if (todayEl) {
+    todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// ─── Registration ───
+let currentRegClassKey = '';
+
+function openRegisterModal(classKey) {
+  currentRegClassKey = classKey;
+  const event = rawEvents.find(e => e.classKey === classKey);
+  if (!event) return;
+
+  const info = document.getElementById('registerClassInfo');
+  info.textContent = `${event.course} — ${event.date} at ${event.startTime}`;
+  document.getElementById('registerEmail').value = '';
+  document.getElementById('registerModal').classList.add('active');
+  setTimeout(() => document.getElementById('registerEmail').focus(), 100);
+}
+
+function closeRegisterModal() {
+  document.getElementById('registerModal').classList.remove('active');
+}
+
+async function submitRegistration() {
+  const email = document.getElementById('registerEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    showStatus('Please enter a valid email', 'error');
+    return;
+  }
+
+  // Check if already registered
+  const existing = data.registrations.find(
+    r => r.classKey === currentRegClassKey && r.email === email
+  );
+  if (existing) {
+    if (existing.status === 'registered') {
+      showStatus('Already registered', 'info');
+    } else if (existing.status === 'pending') {
+      showStatus('Registration pending', 'info');
+    } else {
+      existing.status = 'pending';
+      await saveDataAndUpdate();
+    }
+    closeRegisterModal();
+    return;
+  }
+
+  // Add pending registration
+  data.registrations.push({
+    email,
+    classKey: currentRegClassKey,
+    registeredAt: new Date().toISOString(),
+    status: 'pending',
+  });
+
+  const saved = await saveDataAndUpdate();
+  if (saved) {
+    // Trigger workflow
+    const repo = detectRepo();
+    if (repo) {
+      try {
+        await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}/actions/workflows/register-zoom.yml/dispatches`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GH_TOKEN}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+          },
+          body: JSON.stringify({
+            ref: 'main',
+            inputs: {
+              classKey: currentRegClassKey,
+              email: email,
+            },
+          }),
+        });
+        showStatus('Registration submitted! Workflow will process it.', 'success');
+      } catch (e) {
+        showStatus('Data saved. Workflow trigger failed: ' + e.message, 'error');
+      }
+    } else {
+      showStatus('Data saved (no repo detected)', 'info');
+    }
+    closeRegisterModal();
+    renderCalendar();
+  }
+}
+
+async function saveDataAndUpdate() {
+  if (!GH_TOKEN) {
+    showStatus('No GitHub token set', 'error');
+    return false;
+  }
+  try {
+    await saveRepoData();
+    showStatus('Data saved', 'success');
+    return true;
+  } catch (e) {
+    showStatus('Save failed: ' + e.message, 'error');
+    return false;
+  }
+}
+
+// ─── Zoom link edit ───
+async function editZoomLink(classKey) {
+  const currentLink = data.zoomLinks[classKey] || '';
+  const newLink = prompt('Enter Zoom link for this class:', currentLink);
+  if (newLink === null) return;
+
+  data.zoomLinks[classKey] = newLink.trim();
+  await saveDataAndUpdate();
+  renderCalendar();
+}
+
+// ─── Status toast ───
+function showStatus(msg, type = 'info') {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.className = `status-bar ${type} show`;
+  clearTimeout(bar._timeout);
+  bar._timeout = setTimeout(() => bar.classList.remove('show'), 4000);
+}
+
+// ─── Helpers ───
+function isToday(dateStr) {
+  const today = new Date();
+  const d = new Date(dateStr + 'T00:00:00');
+  return today.getFullYear() === d.getFullYear() &&
+         today.getMonth() === d.getMonth() &&
+         today.getDate() === d.getDate();
+}
+
+function formatTime(t) {
+  if (!t || t === '00:00') return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  const ampm = hr >= 12 ? 'PM' : 'AM';
+  const hr12 = hr % 12 || 12;
+  return `${hr12}:${m} ${ampm}`;
+}
+
+function getCourseColor(course) {
+  return COURSE_COLORS[course] || 'var(--tba)';
+}
+
+function getEventStyle(component) {
+  for (const [key, val] of Object.entries(EVENT_STYLES)) {
+    if (component.includes(key)) return val;
+  }
+  return { type: 'live', color: 'var(--accent2)' };
+}
+
+// ─── Render ───
+function renderCalendar() {
+  const container = document.getElementById('calendar');
+  const weeks = {};
+
+  rawEvents.forEach(ev => {
+    if (!weeks[ev.week]) weeks[ev.week] = [];
+    weeks[ev.week].push(ev);
+  });
+
+  // Sort weeks
+  const sortedWeeks = Object.keys(weeks).map(Number).sort((a, b) => a - b);
+
+  let html = '';
+
+  sortedWeeks.forEach(week => {
+    const events = weeks[week].sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime));
+
+    // Group by date
+    const days = {};
+    events.forEach(ev => {
+      if (!days[ev.date]) days[ev.date] = [];
+      days[ev.date].push(ev);
+    });
+
+    const dayEntries = Object.entries(days).sort(([a], [b]) => a.localeCompare(b));
+
+    html += `<div class="week-group" id="week-${week}">`;
+    html += `<div class="week-header">
+      <h2><span class="week-badge">Week ${week}</span> ${dayEntries[0] ? new Date(dayEntries[0][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : ''} — ${dayEntries.length ? new Date(dayEntries[dayEntries.length - 1][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</h2>
+    </div>`;
+
+    if (currentView === 'weekly') {
+      html += `<div class="week-grid">`;
+      // Friday
+      const fridayEvents = events.filter(e => e.dayName === 'Fri' || e.date === events.find(x => x.dayName === 'Fri')?.date);
+      const saturdayEvents = events.filter(e => e.dayName === 'Sat' || e.date === events.find(x => x.dayName === 'Sat')?.date);
+      const otherEvents = events.filter(e => !['Fri', 'Sat'].includes(e.dayName));
+
+      // Friday column
+      html += `<div class="day-column">`;
+      const fridayDate = events.find(e => e.dayName === 'Fri')?.date;
+      if (fridayDate) {
+        const isTodayClass = isToday(fridayDate);
+        html += `<div class="day-label ${isTodayClass ? 'today' : ''}">Friday · ${new Date(fridayDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>`;
+        fridayEvents.forEach(ev => html += renderEventCard(ev));
+      } else {
+        html += `<div class="day-label">Friday</div>`;
+      }
+      html += `</div>`;
+
+      // Saturday column
+      html += `<div class="day-column">`;
+      const saturdayDate = events.find(e => e.dayName === 'Sat')?.date;
+      if (saturdayDate) {
+        const isTodayClass = isToday(saturdayDate);
+        html += `<div class="day-label ${isTodayClass ? 'today' : ''}">Saturday · ${new Date(saturdayDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>`;
+        saturdayEvents.forEach(ev => html += renderEventCard(ev));
+      } else {
+        html += `<div class="day-label">Saturday</div>`;
+      }
+      html += `</div>`;
+
+      // Other days (exams, quizzes spanning multiple days)
+      if (otherEvents.length > 0) {
+        html += `</div><div class="week-grid" style="margin-top:0">`;
+        html += `<div class="day-column" style="grid-column: 1 / -1">`;
+        const otherDate = otherEvents[0].date;
+        const isTodayClass = isToday(otherDate);
+        html += `<div class="day-label ${isTodayClass ? 'today' : ''}">Other · ${new Date(otherDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>`;
+        otherEvents.forEach(ev => html += renderEventCard(ev));
+        html += `</div>`;
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+    } else {
+      // Daily view
+      html += `<div class="daily-view">`;
+      dayEntries.forEach(([date, dayEvents]) => {
+        const isTodayClass = isToday(date);
+        const dayName = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+        const dayLabel = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        html += `<div class="daily-day">`;
+        html += `<div class="daily-day-header ${isTodayClass ? 'today' : ''}">${dayName} · ${dayLabel}</div>`;
+        dayEvents.forEach(ev => html += renderEventCard(ev));
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderEventCard(ev) {
+  const zoomUrl = data.zoomLinks[ev.classKey] || '';
+  const eventStyle = getEventStyle(ev.component);
+  const color = COURSE_COLORS[ev.course] || 'var(--tba)';
+  const todayClass = isToday(ev.date);
+  const cardClass = `class-card ${todayClass ? 'today' : ''}`;
+
+  let timeHtml = '';
+  if (ev.isLive && ev.startTime && ev.endTime) {
+    timeHtml = `<div class="time-block">
+      <div class="time">${formatTime(ev.startTime)}</div>
+      <div class="time-range">to ${formatTime(ev.endTime)}</div>
+    </div>`;
+  } else if (ev.startDate !== ev.endDate) {
+    timeHtml = `<div class="time-block">
+      <div class="time">${ev.startDate} — ${ev.endDate}</div>
+    </div>`;
+  }
+
+  let actionsHtml = '';
+
+  if (ev.isLive && zoomUrl) {
+    actionsHtml += `<a href="${zoomUrl}" target="_blank" class="zoom-link-btn has-link">🔗 Join</a>`;
+  } else if (ev.isLive) {
+    actionsHtml += `<span class="no-zoom">No link yet</span>`;
+  }
+
+  if (ev.isLive) {
+    const isRegistered = data.registrations.some(r => r.classKey === ev.classKey && r.email && r.status === 'registered');
+    actionsHtml += `<button class="register-btn ${isRegistered ? 'registered' : ''}" onclick="openRegisterModal('${ev.classKey}')">${isRegistered ? '✓ Registered' : 'Register'}</button>`;
+  }
+
+  actionsHtml += `<button class="btn btn-sm" onclick="editZoomLink('${ev.classKey}')" title="Edit Zoom link">✎</button>`;
+
+  let weightHtml = '';
+  if (ev.weightage) {
+    weightHtml = `<div class="event-weight">Weightage: ${ev.weightage}%</div>`;
+  }
+
+  return `<div class="${cardClass}" style="position:relative">
+    ${ev.isLive ? `<div class="color-dot" style="background:${color}"></div>` : ''}
+    ${timeHtml}
+    <div class="class-info">
+      <div class="class-name">
+        ${ev.course}
+        <span class="class-type ${eventStyle.type}">${ev.component.replace('LIVE CLASS SESSION', 'LIVE')}</span>
+      </div>
+      ${ev.isLive ? `<div class="class-meta">${ev.date}</div>` : ''}
+      ${ev.isQuiz || ev.isAssignment || ev.isExam ? weightHtml : ''}
+    </div>
+    <div class="class-actions">${actionsHtml}</div>
+  </div>`;
+}
+
+// ─── Init ───
+async function loadCalendar() {
+  const container = document.getElementById('calendar');
+  container.innerHTML = `<div class="loading"><div class="spinner"></div>Loading calendar...</div>`;
+
+  rawEvents = parseCSV();
+
+  // Try to load from GitHub
+  if (GH_TOKEN) {
+    try {
+      const repoData = await fetchRepoData();
+      if (repoData) {
+        data = repoData;
+        document.getElementById('dataStatus').textContent = `Loaded from repo`;
+      } else {
+        document.getElementById('dataStatus').textContent = `No data in repo yet`;
+      }
+    } catch (e) {
+      document.getElementById('dataStatus').textContent = `Using local data`;
+    }
+  } else {
+    document.getElementById('dataStatus').textContent = `No token — view only`;
+  }
+
+  renderCalendar();
+}
+
+// ─── Start ───
+loadToken();
+loadCalendar();
+
+// Close modal on overlay click
+document.getElementById('registerModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRegisterModal();
+});
+
+// Enter key in email input
+document.getElementById('registerEmail').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitRegistration();
+});
+</script>
+</body>
+</html>
