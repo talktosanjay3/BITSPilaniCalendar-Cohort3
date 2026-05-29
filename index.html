@@ -889,10 +889,27 @@ async function saveRepoData() {
 }
 
 function getRepoInfo() {
-  // Try to detect from URL or use placeholder
-  const path = window.location.pathname;
-  const match = path.match(/\/([^/]+)\/([^/]+)\/?/);
-  if (match) return `${match[1]}/${match[2]}`;
+  const hostname = window.location.hostname;
+
+  // GitHub Pages: owner.github.io/repo-name
+  if (hostname.match(/\.github\.io$/)) {
+    const parts = hostname.split('.');
+    const owner = parts[0];
+    const pathParts = window.location.pathname.slice(1).split('/').filter(Boolean);
+    const repo = pathParts[0] || '';
+    if (owner && repo) return `${owner}/${repo}`;
+  }
+
+  // Raw GitHub URL: github.com/owner/repo/...
+  if (hostname === 'github.com') {
+    const match = window.location.pathname.match(/\/([^/]+)\/([^/]+)\/?/);
+    if (match) return `${match[1]}/${match[2]}`;
+  }
+
+  // Fallback: try to detect from pathname (two segments)
+  const pathParts = window.location.pathname.slice(1).split('/').filter(Boolean);
+  if (pathParts.length >= 2) return `${pathParts[0]}/${pathParts[1]}`;
+
   return null;
 }
 
@@ -901,10 +918,25 @@ function detectRepo() {
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return { owner: 'your-username', repo: 'your-repo' };
   }
-  const path = window.location.pathname.slice(1).split('/');
-  if (path.length >= 2 && path[0] && path[1]) {
-    return { owner: path[0], repo: path[1] };
+
+  // GitHub Pages
+  if (hostname.match(/\.github\.io$/)) {
+    const parts = hostname.split('.');
+    const owner = parts[0];
+    const pathParts = window.location.pathname.slice(1).split('/').filter(Boolean);
+    const repo = pathParts[0] || '';
+    if (owner && repo) return { owner, repo };
   }
+
+  // Raw GitHub URL
+  if (hostname === 'github.com') {
+    const pathParts = window.location.pathname.slice(1).split('/').filter(Boolean);
+    if (pathParts.length >= 2) return { owner: pathParts[0], repo: pathParts[1] };
+  }
+
+  // Fallback
+  const pathParts = window.location.pathname.slice(1).split('/').filter(Boolean);
+  if (pathParts.length >= 2) return { owner: pathParts[0], repo: pathParts[1] };
   return null;
 }
 
