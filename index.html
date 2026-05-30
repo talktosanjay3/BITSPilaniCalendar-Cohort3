@@ -786,7 +786,7 @@ body {
     <div class="legend-item"><div class="legend-dot" style="background:var(--exam)"></div>Exam</div>
   </div>
 
-  <div class="setup-bar" id="setupBar" style="display:none">
+  <div class="setup-bar" id="setupBar">
     <label>🔑 Write Token:</label>
     <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" />
     <button class="btn btn-accent" onclick="saveToken()">Save & Reload</button>
@@ -1084,7 +1084,6 @@ function saveToken() {
   }
   GH_TOKEN = token;
   localStorage.setItem('gh_token', token);
-  document.getElementById('setupBar').style.display = 'none';
   showStatus('Token saved — reloading...', 'success');
   loadCalendar();
 }
@@ -1093,8 +1092,7 @@ function loadToken() {
   const token = localStorage.getItem('gh_token');
   if (token) {
     GH_TOKEN = token;
-  } else {
-    document.getElementById('setupBar').style.display = 'flex';
+    document.getElementById('ghToken').value = token;
   }
 }
 
