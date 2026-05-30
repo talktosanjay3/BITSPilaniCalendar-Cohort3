@@ -728,6 +728,32 @@ body {
   flex-shrink: 0;
 }
 
+.student-email-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.student-email-badge.pending {
+  background: rgba(245,158,11,0.15);
+  color: #fbbf24;
+}
+
+.student-email-badge.processed {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+}
+
+.student-email-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .student-empty {
   padding: 32px 14px;
   text-align: center;
@@ -1416,15 +1442,44 @@ let studentsData = [];
 async function fetchStudents() {
   const repo = getRepoInfo();
   if (!repo) return [];
+  const [owner, repoName] = repo.split('/');
+
+  let processed = [];
+
   try {
     const res = await fetch(`https://raw.githubusercontent.com/${repo}/refs/heads/main/students.json`);
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.emails || [];
+    if (res.ok) {
+      const json = await res.json();
+      processed = (json.emails || []).map(e => ({ email: e, status: 'processed' }));
+    }
   } catch (e) {
     console.error('Failed to fetch students:', e);
-    return [];
   }
+
+  try {
+    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+    if (GH_TOKEN) headers['Authorization'] = `token ${GH_TOKEN}`;
+    const issuesRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repoName}/issues?labels=add-student&state=open&per_page=100`,
+      { headers }
+    );
+    if (issuesRes.ok) {
+      const issues = await issuesRes.json();
+      const processedEmails = new Set(processed.map(p => p.email));
+      for (const issue of issues) {
+        if (issue.pull_request) continue;
+        const title = issue.title.replace('Add student:', '').trim();
+        const match = title.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+        if (match && !processedEmails.has(match[0])) {
+          processed.push({ email: match[0], status: 'pending', issueUrl: issue.html_url });
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch issues:', e);
+  }
+
+  return processed;
 }
 
 async function openStudentModal() {
@@ -1441,20 +1496,23 @@ function closeStudentModal() {
   document.getElementById('studentModal').classList.remove('active');
 }
 
-function renderStudentList(emails) {
+function renderStudentList(entries) {
   const listEl = document.getElementById('studentList');
   const countEl = document.getElementById('studentCount');
 
-  if (!emails.length) {
+  if (!entries.length) {
     listEl.innerHTML = '<div class="student-empty">No students yet</div>';
     countEl.textContent = '';
     return;
   }
 
-  countEl.textContent = `${emails.length} student${emails.length !== 1 ? 's' : ''}`;
-  listEl.innerHTML = emails.map(e =>
-    `<div class="student-email"><div class="student-email-dot"></div>${e}</div>`
-  ).join('');
+  countEl.textContent = `${entries.length} student${entries.length !== 1 ? 's' : ''}`;
+  listEl.innerHTML = entries.map(e => {
+    const badge = e.status === 'pending'
+      ? '<a class="student-email-badge pending" href="' + (e.issueUrl || '#') + '" target="_blank" title="Issue pending">⏳ pending</a>'
+      : '<span class="student-email-badge processed">✓ processed</span>';
+    return `<div class="student-email"><div class="student-email-dot"></div><span class="student-email-text">${e.email}</span>${badge}</div>`;
+  }).join('');
 }
 
 async function createStudentIssue(email) {
@@ -1494,7 +1552,7 @@ async function addStudent() {
     return;
   }
 
-  if (studentsData.includes(email)) {
+  if (studentsData.some(e => e.email === email)) {
     showStatus('Email already exists in the list', 'error');
     return;
   }
@@ -1505,11 +1563,11 @@ async function addStudent() {
   }
 
   try {
-    await createStudentIssue(email);
-    studentsData.push(email);
+    const issue = await createStudentIssue(email);
+    studentsData.push({ email, status: 'pending', issueUrl: issue.html_url });
     renderStudentList(studentsData);
     input.value = '';
-    showStatus(`"${email}" submitted — will be added within 1 hour`, 'success');
+    showStatus(`"${email}" submitted — will be processed within 1 hour`, 'success');
   } catch (e) {
     showStatus('Failed to submit: ' + e.message, 'error');
     console.error(e);
