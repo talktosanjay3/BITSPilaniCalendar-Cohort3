@@ -880,7 +880,7 @@ body {
       <div class="student-empty">Loading...</div>
     </div>
     <div class="student-add-row">
-      <input type="email" id="studentEmail" placeholder="student@bits.ac.in" />
+      <input type="email" id="studentEmail" placeholder="name@bitspilani-digital.edu.in" />
       <button class="btn btn-accent" onclick="addStudent()">Add</button>
     </div>
     <div class="student-info">Pending additions are processed within 1 hour.</div>
@@ -1581,6 +1581,11 @@ async function addStudent() {
 
   if (!email || !email.includes('@')) {
     showStatus('Please enter a valid email address', 'error');
+    return;
+  }
+
+  if (!email.endsWith('@bitspilani-digital.edu.in')) {
+    showStatus('Only @bitspilani-digital.edu.in emails are allowed', 'error');
     return;
   }
 
