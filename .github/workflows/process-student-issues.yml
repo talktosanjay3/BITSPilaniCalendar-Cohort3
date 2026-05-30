@@ -1,0 +1,112 @@
+name: Process Student Issues
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN_WORKFLOW }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Process student issues
+        env:
+          GH_TOKEN_WORKFLOW: ${{ secrets.GH_TOKEN_WORKFLOW }}
+        run: |
+          python - <<'PYEOF'
+          import json
+          import os
+          import re
+          from urllib.request import Request, urlopen
+
+          token = os.environ["GH_TOKEN_WORKFLOW"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          api_base = f"https://api.github.com/repos/{repo}"
+
+          def api(method, path, data=None):
+              url = f"{api_base}/{path}"
+              headers = {
+                  "Authorization": f"token {token}",
+                  "Accept": "application/vnd.github.v3+json",
+              }
+              body = json.dumps(data).encode() if data else None
+              req = Request(url, data=body, headers=headers, method=method)
+              return json.loads(urlopen(req).read())
+
+          issues_url = (
+              f"{api_base}/issues?"
+              "labels=add-student&state=open&per_page=100"
+          )
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github.v3+json",
+          }
+          raw_issues = json.loads(urlopen(Request(issues_url, headers=headers)).read())
+          issues = [i for i in raw_issues if "pull_request" not in i]
+          print(f"Found {len(issues)} open student issues")
+
+          if not issues:
+              print("Nothing to process")
+              exit(0)
+
+          with open("students.json", "r") as f:
+              data = json.load(f)
+
+          existing = set(data.get("emails", []))
+          updated = False
+
+          for issue in issues:
+              num = issue["number"]
+              title = issue.get("title", "")
+              body = issue.get("body", "")
+
+              found = re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", title)
+              if not found:
+                  found = re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", body)
+
+              if not found:
+                  print(f"  #{num}: no email found, closing")
+                  api("PATCH", f"issues/{num}", {"state": "closed"})
+                  continue
+
+              email = found[0]
+              if email in existing:
+                  print(f"  #{num}: {email} already exists, closing")
+              else:
+                  data["emails"].append(email)
+                  existing.add(email)
+                  updated = True
+                  print(f"  #{num}: added {email}")
+
+              api("PATCH", f"issues/{num}", {"state": "closed"})
+
+          if updated:
+              with open("students.json", "w") as f:
+                  json.dump(data, f, indent=2)
+                  f.write("\n")
+              print(
+                  f"Updated students.json ({len(data['emails'])} total)"
+              )
+          PYEOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "Student Manager Bot"
+          git config user.email "student-bot@github.com"
+          git add students.json
+          git diff --staged --quiet || git commit -m "Update students.json"
+          git push
