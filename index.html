@@ -234,13 +234,14 @@ body {
   gap: 10px;
 }
 
-.week-badge {
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.75rem;
+.week-indicator {
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
+  color: var(--text2);
+  background: rgba(255,255,255,0.06);
+  padding: 2px 7px;
+  border-radius: 3px;
+  margin-right: 6px;
 }
 
 /* Weekly view */
@@ -271,7 +272,8 @@ body {
 
 .day-label.today {
   color: var(--accent2);
-  background: rgba(99,102,241,0.08);
+  background: rgba(99,102,241,0.12);
+  font-weight: 700;
 }
 
 /* Daily view */
@@ -304,7 +306,8 @@ body {
 
 .daily-day-header.today {
   color: var(--accent2);
-  background: rgba(99,102,241,0.08);
+  background: rgba(99,102,241,0.12);
+  font-weight: 700;
 }
 
 /* Class cards */
@@ -327,7 +330,7 @@ body {
 }
 
 .class-card.today {
-  background: rgba(99,102,241,0.04);
+  background: rgba(99,102,241,0.07);
 }
 
 .class-card.today::before {
@@ -336,9 +339,15 @@ body {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   background: var(--accent);
   border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 10px rgba(99,102,241,0.4);
+}
+
+.week-group.today-week {
+  border-color: rgba(99,102,241,0.35);
+  box-shadow: 0 0 16px rgba(99,102,241,0.06);
 }
 
 .time-block {
@@ -1334,9 +1343,10 @@ function renderCalendar() {
 
     const dayEntries = Object.entries(days).sort(([a], [b]) => a.localeCompare(b));
 
-    html += `<div class="week-group" id="week-${week}">`;
+    const hasTodayWeek = dayEntries.some(([date]) => isToday(date));
+    html += `<div class="week-group${hasTodayWeek ? ' today-week' : ''}" id="week-${week}">`;
     html += `<div class="week-header">
-      <h2><span class="week-badge">Week ${week}</span> ${dayEntries[0] ? new Date(dayEntries[0][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : ''} — ${dayEntries.length ? new Date(dayEntries[dayEntries.length - 1][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</h2>
+      <h2>${dayEntries[0] ? new Date(dayEntries[0][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : ''} — ${dayEntries.length ? new Date(dayEntries[dayEntries.length - 1][0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</h2>
     </div>`;
 
     if (currentView === 'weekly') {
@@ -1448,7 +1458,7 @@ function renderEventCard(ev) {
     ${timeHtml}
     <div class="class-info">
       <div class="class-name">
-        ${ev.course}
+        <span class="week-indicator">W${ev.week}</span>${ev.course}
         <span class="class-type ${eventStyle.type}">${ev.component.replace('LIVE CLASS SESSION', 'LIVE')}</span>
       </div>
       ${ev.isLive ? `<div class="class-meta">${ev.date}</div>` : ''}
