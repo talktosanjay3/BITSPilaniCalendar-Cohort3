@@ -798,44 +798,71 @@ async function fetchSchedule() {
   return await res.json();
 }
 
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function parseTime(timeStr) {
+  if (!timeStr) return null;
+  const m = timeStr.match(/(\d+)\.(\d+)\s*(AM|PM)/i);
+  if (!m) return null;
+  let hour = parseInt(m[1]);
+  const min = parseInt(m[2]);
+  const ampm = m[3].toUpperCase();
+  if (ampm === 'PM' && hour !== 12) hour += 12;
+  if (ampm === 'AM' && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+}
+
 function eventsFromSchedule(schedule) {
   const events = [];
-  schedule.events.forEach(ev => {
-    const week = ev.week;
-    const component = ev.component;
-    const startDate = ev.date;
-    const endDate = ev.endDate || startDate;
-    const startTime = ev.startTime;
-    const endTime = ev.endTime;
-    const course = ev.course;
-    const weightage = ev.weightage;
 
-    if (!startDate) return;
+  schedule.courses.forEach(course => {
+    const courseName = course.course_name;
 
-    const date = new Date(startDate + 'T00:00:00');
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+    course.schedule.forEach(entry => {
+      const week = entry.week;
+      const component = entry.component;
+      const startDate = parseDate(entry.start_date);
+      const endDate = parseDate(entry.end_date) || startDate;
+      const startTime = parseTime(entry.start_time_ist);
+      const endTime = parseTime(entry.end_time_ist);
+      const weightage = entry.weightage;
 
-    const timeStr = (startTime || '00-00').replace(':', '-');
-    const classKey = `week-${week}-${startDate.replace(/-/g, '')}-${timeStr}`;
+      if (!startDate) return;
 
-    events.push({
-      week,
-      component,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
-      course: course || 'TBA',
-      weightage,
-      dayName,
-      date: startDate,
-      classKey,
-      isLive: component.includes('LIVE'),
-      isQuiz: component.includes('QUIZ'),
-      isAssignment: component.includes('ASSIGNMENT'),
-      isExam: component.includes('EXAM'),
+      const date = new Date(startDate + 'T00:00:00');
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+      const timeStr = (startTime || '00-00').replace(':', '-');
+      const classKey = `week-${week}-${startDate.replace(/-/g, '')}-${timeStr}`;
+
+      events.push({
+        week,
+        component,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        course: courseName || 'TBA',
+        weightage,
+        dayName,
+        date: startDate,
+        classKey,
+        isLive: component.includes('LIVE'),
+        isQuiz: component.includes('QUIZ'),
+        isAssignment: component.includes('ASSIGNMENT'),
+        isExam: component.includes('EXAM'),
+      });
     });
   });
+
   return events;
 }
 
