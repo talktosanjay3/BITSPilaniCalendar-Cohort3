@@ -242,6 +242,8 @@ body {
   padding: 2px 7px;
   border-radius: 3px;
   margin-right: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Weekly view */
@@ -380,6 +382,13 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.course-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .class-type {
@@ -390,6 +399,8 @@ body {
   padding: 2px 8px;
   border-radius: 4px;
   display: inline-block;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .class-type.live { background: rgba(99,102,241,0.15); color: var(--accent2); }
@@ -1460,7 +1471,7 @@ function renderEventCard(ev) {
     ${timeHtml}
     <div class="class-info">
       <div class="class-name">
-        <span class="week-indicator">W${ev.jsonWeek}</span>${ev.course}
+        <span class="week-indicator">W${ev.jsonWeek}</span><span class="course-text">${ev.course}</span>
         <span class="class-type ${eventStyle.type}">${ev.component.replace('LIVE CLASS SESSION', 'LIVE')}</span>
       </div>
       ${ev.isLive ? `<div class="class-meta">${ev.date}</div>` : ''}
