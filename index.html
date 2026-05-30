@@ -1464,18 +1464,13 @@ function renderEventCard(ev) {
   let actionsHtml = '';
 
   if (zoomUrl) {
-    actionsHtml += `<a href="${zoomUrl}" target="_blank" class="zoom-link-btn has-link">🔗 Join</a>`;
+    actionsHtml += `<a href="${zoomUrl}" target="_blank" class="zoom-link-btn has-link">🎥 Join</a>`;
   } else if (ev.isLive) {
     actionsHtml += `<span class="no-zoom">No link yet</span>`;
   }
 
-  if (ev.isLive) {
-    const isRegistered = data.registrations.some(r => r.classKey === ev.classKey && r.email && r.status === 'registered');
-    actionsHtml += `<button class="register-btn ${isRegistered ? 'registered' : ''}" onclick="openRegisterModal('${ev.classKey}')">${isRegistered ? '✓ Registered' : 'Register'}</button>`;
-  }
-
   if (!zoomUrl) {
-    actionsHtml += `<button class="btn btn-sm" onclick="openZoomModal('${ev.classKey}')" title="Add Zoom link">➕ Add</button>`;
+    actionsHtml += `<button class="btn btn-sm" onclick="openZoomModal('${ev.classKey}')" title="Add Zoom link">🎥 Add link</button>`;
   }
 
   let weightHtml = '';
