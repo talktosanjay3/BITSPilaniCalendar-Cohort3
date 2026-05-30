@@ -792,6 +792,22 @@ body {
   color: var(--text2);
   margin-top: 12px;
 }
+
+.student-search {
+  width: 100%;
+  padding: 9px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.student-search:focus {
+  border-color: var(--accent);
+}
 </style>
 </head>
 <body>
@@ -859,6 +875,7 @@ body {
   <div class="modal">
     <h3>Manage Students</h3>
     <div class="student-count" id="studentCount"></div>
+    <input type="text" id="studentSearch" class="student-search" placeholder="Search email..." oninput="onStudentSearch()" />
     <div class="student-list" id="studentList">
       <div class="student-empty">Loading...</div>
     </div>
@@ -1487,27 +1504,40 @@ async function openStudentModal() {
   document.getElementById('studentList').innerHTML = '<div class="student-empty">Loading...</div>';
   document.getElementById('studentCount').textContent = '';
   document.getElementById('studentEmail').value = '';
+  document.getElementById('studentSearch').value = '';
   studentsData = await fetchStudents();
   renderStudentList(studentsData);
   setTimeout(() => document.getElementById('studentEmail').focus(), 100);
 }
 
-function closeStudentModal() {
+function onStudentSearch() {
+  renderStudentList(studentsData);
+}
   document.getElementById('studentModal').classList.remove('active');
 }
 
 function renderStudentList(entries) {
   const listEl = document.getElementById('studentList');
   const countEl = document.getElementById('studentCount');
+  const searchVal = document.getElementById('studentSearch').value.trim().toLowerCase();
 
-  if (!entries.length) {
-    listEl.innerHTML = '<div class="student-empty">No students yet</div>';
-    countEl.textContent = '';
+  const filtered = searchVal
+    ? entries.filter(e => e.email.toLowerCase().includes(searchVal))
+    : entries;
+
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="student-empty">' + (searchVal ? 'No matches' : 'No students yet') + '</div>';
+    countEl.textContent = searchVal
+      ? `No matches (${entries.length} total)`
+      : '';
     return;
   }
 
-  countEl.textContent = `${entries.length} student${entries.length !== 1 ? 's' : ''}`;
-  listEl.innerHTML = entries.map(e => {
+  countEl.textContent = searchVal
+    ? `Showing ${filtered.length} of ${entries.length} student${entries.length !== 1 ? 's' : ''}`
+    : `${entries.length} student${entries.length !== 1 ? 's' : ''}`;
+
+  listEl.innerHTML = filtered.map(e => {
     const badge = e.status === 'pending'
       ? '<a class="student-email-badge pending" href="' + (e.issueUrl || '#') + '" target="_blank" title="Issue pending">⏳ pending</a>'
       : '<span class="student-email-badge processed">✓ processed</span>';
@@ -1565,6 +1595,7 @@ async function addStudent() {
   try {
     const issue = await createStudentIssue(email);
     studentsData.push({ email, status: 'pending', issueUrl: issue.html_url });
+    document.getElementById('studentSearch').value = '';
     renderStudentList(studentsData);
     input.value = '';
     showStatus(`"${email}" submitted — will be processed within 1 hour`, 'success');
