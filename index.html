@@ -1093,6 +1093,8 @@ function loadToken() {
   const token = localStorage.getItem('gh_token');
   if (token) {
     GH_TOKEN = token;
+  } else {
+    document.getElementById('setupBar').style.display = 'flex';
   }
 }
 
