@@ -964,13 +964,12 @@ function parseTime(timeStr) {
 
 function eventsFromSchedule(schedule) {
   const events = [];
-  const WEEK1_FRIDAY = new Date('2026-05-22T00:00:00').getTime();
-  const ONE_WEEK = 7 * 86400000;
 
   schedule.courses.forEach(course => {
     const courseName = course.course_name;
 
     course.schedule.forEach(entry => {
+      const week = entry.week;
       const component = entry.component;
       const startDate = parseDate(entry.start_date);
       const endDate = parseDate(entry.end_date) || startDate;
@@ -982,10 +981,6 @@ function eventsFromSchedule(schedule) {
 
       const date = new Date(startDate + 'T00:00:00');
       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-
-      const fridayOffset = (date.getDay() + 2) % 7;
-      const fridayOfWeek = date.getTime() - fridayOffset * 86400000;
-      const week = Math.round((fridayOfWeek - WEEK1_FRIDAY) / ONE_WEEK) + 1;
 
       const timeStr = (startTime || '00-00').replace(':', '-');
       const classKey = `week-${week}-${startDate.replace(/-/g, '')}-${timeStr}`;
