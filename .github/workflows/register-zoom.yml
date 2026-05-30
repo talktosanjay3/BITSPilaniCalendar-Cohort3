@@ -43,11 +43,12 @@ jobs:
           python - <<'PYEOF'
           import json
           import os
+          import re
           import sys
-          from playwright.sync_api import sync_playwright
           from datetime import datetime, timezone
+          from playwright.sync_api import sync_playwright
 
-          # Read data.json
+          # Read data.json for registrations
           with open('data.json', 'r') as f:
               data = json.load(f)
 
@@ -58,7 +59,50 @@ jobs:
               print("No class key provided. Exiting.")
               sys.exit(1)
 
-          zoom_url = data.get("zoomLinks", {}).get(class_key, "")
+          # Parse classKey to find matching entry in schedule.json
+          key_parts = class_key.split('-')
+          if len(key_parts) < 5:
+              print(f"Invalid class key: {class_key}")
+              sys.exit(1)
+
+          target_date = f"{key_parts[2][:4]}-{key_parts[2][4:6]}-{key_parts[2][6:8]}"
+          target_time = f"{key_parts[3]}:{key_parts[4]}"
+
+          # Read schedule.json for zoom URLs
+          with open('schedule.json', 'r') as f:
+              schedule = json.load(f)
+
+          def parse_sched_date(d):
+              try:
+                  from datetime import datetime as dt
+                  return dt.strptime(d, '%A, %B %d, %Y').strftime('%Y-%m-%d')
+              except:
+                  return None
+
+          def parse_sched_time(t):
+              m = re.match(r'(\d+)\.(\d+)\s*(AM|PM)', t, re.I)
+              if not m:
+                  return None
+              h = int(m.group(1))
+              mn = int(m.group(2))
+              ap = m.group(3).upper()
+              if ap == 'PM' and h != 12:
+                  h += 12
+              if ap == 'AM' and h == 12:
+                  h = 0
+              return f"{h:02d}:{mn:02d}"
+
+          zoom_url = ""
+          for course in schedule.get('courses', []):
+              for entry in course.get('schedule', []):
+                  ed = parse_sched_date(entry.get('start_date', ''))
+                  et = parse_sched_time(entry.get('start_time_ist', ''))
+                  if ed == target_date and et == target_time:
+                      zoom_url = entry.get('zoom_url', '')
+                      break
+              if zoom_url:
+                  break
+
           if not zoom_url:
               print(f"No Zoom URL found for {class_key}. Exiting.")
               sys.exit(1)

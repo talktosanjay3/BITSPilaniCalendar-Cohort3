@@ -910,6 +910,19 @@ body {
   </div>
 </div>
 
+<!-- Zoom Link Modal -->
+<div class="modal-overlay" id="zoomModal">
+  <div class="modal">
+    <h3>Add Zoom Link</h3>
+    <p id="zoomClassInfo"></p>
+    <input type="text" id="zoomUrlInput" placeholder="https://zoom.us/j/..." />
+    <div class="modal-actions">
+      <button class="btn" onclick="closeZoomModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="submitZoomLink()">Submit</button>
+    </div>
+  </div>
+</div>
+
 <!-- Status toast -->
 <div class="status-bar" id="statusBar"></div>
 
@@ -917,9 +930,10 @@ body {
 // ─── State ───
 let GH_TOKEN = '';
 let scheduleData = { metadata: {}, events: [] };
-let data = { zoomLinks: {}, registrations: [] };
+let data = { registrations: [] };
 let currentView = 'weekly';
 let rawEvents = [];
+let zoomEventLookup = {};
 
 // ─── Course colors ───
 const COURSE_COLORS = {
@@ -978,6 +992,8 @@ function eventsFromSchedule(schedule) {
   const WEEK1_FRIDAY = new Date('2026-05-22T00:00:00').getTime();
   const ONE_WEEK = 7 * 86400000;
 
+  zoomEventLookup = {};
+
   schedule.courses.forEach(course => {
     const courseName = course.course_name;
 
@@ -989,6 +1005,7 @@ function eventsFromSchedule(schedule) {
       const startTime = parseTime(entry.start_time_ist);
       const endTime = parseTime(entry.end_time_ist);
       const weightage = entry.weightage;
+      const zoomUrl = entry.zoom_url || '';
 
       if (!startDate) return;
 
@@ -999,8 +1016,16 @@ function eventsFromSchedule(schedule) {
       const fridayOfWeek = date.getTime() - fridayOffset * 86400000;
       const week = Math.round((fridayOfWeek - WEEK1_FRIDAY) / ONE_WEEK) + 1;
 
-      const timeStr = (startTime || '00-00').replace(':', '-');
+      const timeStr = (startTime || '00:00').replace(':', '-');
       const classKey = `week-${week}-${startDate.replace(/-/g, '')}-${timeStr}`;
+
+      zoomEventLookup[classKey] = {
+        course: courseName,
+        jsonWeek,
+        component,
+        rawStartDate: entry.start_date,
+        rawStartTime: entry.start_time_ist,
+      };
 
       events.push({
         week,
@@ -1015,6 +1040,7 @@ function eventsFromSchedule(schedule) {
         date: startDate,
         classKey,
         jsonWeek,
+        zoomUrl,
         isLive: component.includes('LIVE'),
         isQuiz: component.includes('QUIZ'),
         isAssignment: component.includes('ASSIGNMENT'),
@@ -1280,17 +1306,6 @@ async function saveDataAndUpdate() {
   }
 }
 
-// ─── Zoom link edit ───
-async function editZoomLink(classKey) {
-  const currentLink = data.zoomLinks[classKey] || '';
-  const newLink = prompt('Enter Zoom link for this class:', currentLink);
-  if (newLink === null) return;
-
-  data.zoomLinks[classKey] = newLink.trim();
-  await saveDataAndUpdate();
-  renderCalendar();
-}
-
 // ─── Status toast ───
 function showStatus(msg, type = 'info') {
   const bar = document.getElementById('statusBar');
@@ -1428,7 +1443,7 @@ function renderCalendar() {
 }
 
 function renderEventCard(ev) {
-  const zoomUrl = data.zoomLinks[ev.classKey] || '';
+  const zoomUrl = ev.zoomUrl;
   const eventStyle = getEventStyle(ev.component);
   const color = COURSE_COLORS[ev.course] || 'var(--tba)';
   const todayClass = isToday(ev.date);
@@ -1448,7 +1463,7 @@ function renderEventCard(ev) {
 
   let actionsHtml = '';
 
-  if (ev.isLive && zoomUrl) {
+  if (zoomUrl) {
     actionsHtml += `<a href="${zoomUrl}" target="_blank" class="zoom-link-btn has-link">🔗 Join</a>`;
   } else if (ev.isLive) {
     actionsHtml += `<span class="no-zoom">No link yet</span>`;
@@ -1459,7 +1474,9 @@ function renderEventCard(ev) {
     actionsHtml += `<button class="register-btn ${isRegistered ? 'registered' : ''}" onclick="openRegisterModal('${ev.classKey}')">${isRegistered ? '✓ Registered' : 'Register'}</button>`;
   }
 
-  actionsHtml += `<button class="btn btn-sm" onclick="editZoomLink('${ev.classKey}')" title="Edit Zoom link">✎</button>`;
+  if (!zoomUrl) {
+    actionsHtml += `<button class="btn btn-sm" onclick="openZoomModal('${ev.classKey}')" title="Add Zoom link">➕ Add</button>`;
+  }
 
   let weightHtml = '';
   if (ev.weightage) {
@@ -1479,6 +1496,91 @@ function renderEventCard(ev) {
     </div>
     <div class="class-actions">${actionsHtml}</div>
   </div>`;
+}
+
+// ─── Zoom modal ───
+let currentZoomClassKey = '';
+
+function openZoomModal(classKey) {
+  const ev = zoomEventLookup[classKey];
+  if (!ev) return;
+  currentZoomClassKey = classKey;
+  document.getElementById('zoomClassInfo').textContent = `${ev.course} — W${ev.jsonWeek} ${ev.component} — ${ev.rawStartDate}`;
+  document.getElementById('zoomUrlInput').value = '';
+  document.getElementById('zoomModal').classList.add('active');
+  setTimeout(() => document.getElementById('zoomUrlInput').focus(), 100);
+}
+
+function closeZoomModal() {
+  document.getElementById('zoomModal').classList.remove('active');
+  currentZoomClassKey = '';
+}
+
+async function submitZoomLink() {
+  const url = document.getElementById('zoomUrlInput').value.trim();
+  if (!url || !url.startsWith('http')) {
+    showStatus('Please enter a valid URL starting with http', 'error');
+    return;
+  }
+  if (!GH_TOKEN) {
+    showStatus('Enter your GitHub token above to add Zoom links', 'error');
+    return;
+  }
+
+  const ev = zoomEventLookup[currentZoomClassKey];
+  if (!ev) return;
+
+  try {
+    await createZoomIssue(url, ev);
+    closeZoomModal();
+    showStatus('Zoom link submitted — will be added shortly', 'success');
+  } catch (e) {
+    showStatus('Failed to submit: ' + e.message, 'error');
+    console.error(e);
+  }
+}
+
+async function createZoomIssue(zoomUrl, ev) {
+  const repo = getRepoInfo();
+  const [owner, repoName] = repo.split('/');
+
+  const body = {
+    title: `Add Zoom: ${ev.course} - W${ev.jsonWeek} ${ev.component}`,
+    body: JSON.stringify({
+      course: ev.course,
+      week: ev.jsonWeek,
+      component: ev.component,
+      start_date: ev.rawStartDate,
+      start_time_ist: ev.rawStartTime,
+      zoom_url: zoomUrl,
+    }, null, 2),
+    labels: ['add-zoom'],
+  };
+
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}/issues`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `token ${GH_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Failed to create issue: ${res.status}`);
+  }
+
+  await fetch(`https://api.github.com/repos/${owner}/${repoName}/actions/workflows/add-zoom.yml/dispatches`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `token ${GH_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+    body: JSON.stringify({ ref: 'main' }),
+  });
 }
 
 // ─── Students ───
@@ -1664,7 +1766,7 @@ async function loadCalendar() {
   try {
     const repoData = await fetchRepoData();
     if (repoData) {
-      data = repoData;
+      data = { registrations: repoData.registrations || [] };
       document.getElementById('dataStatus').textContent += ` | data loaded`;
     } else {
       document.getElementById('dataStatus').textContent += ` | no data yet`;
@@ -1702,6 +1804,16 @@ document.getElementById('studentModal').addEventListener('click', function(e) {
 // Enter key in student email input
 document.getElementById('studentEmail').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') addStudent();
+});
+
+// Zoom modal overlay click
+document.getElementById('zoomModal').addEventListener('click', function(e) {
+  if (e.target === this) closeZoomModal();
+});
+
+// Enter key in zoom URL input
+document.getElementById('zoomUrlInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitZoomLink();
 });
 </script>
 </body>

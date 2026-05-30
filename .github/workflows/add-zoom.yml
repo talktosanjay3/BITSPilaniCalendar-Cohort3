@@ -1,0 +1,155 @@
+name: Add Zoom Links
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  add-zoom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Process zoom issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PYEOF'
+          import json
+          import os
+          import re
+          from urllib.request import Request, urlopen
+
+          token = os.environ["GH_TOKEN"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          api_base = f"https://api.github.com/repos/{repo}"
+
+          def api(method, path, data=None):
+              url = f"{api_base}/{path}"
+              headers = {
+                  "Authorization": f"token {token}",
+                  "Accept": "application/vnd.github.v3+json",
+              }
+              body = json.dumps(data).encode() if data else None
+              req = Request(url, data=body, headers=headers, method=method)
+              return json.loads(urlopen(req).read())
+
+          issues_url = (
+              f"{api_base}/issues?"
+              "labels=add-zoom&state=open&per_page=100"
+          )
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github.v3+json",
+          }
+          raw_issues = json.loads(urlopen(Request(issues_url, headers=headers)).read())
+          issues = [i for i in raw_issues if "pull_request" not in i]
+          print(f"Found {len(issues)} open zoom issues")
+
+          if not issues:
+              print("Nothing to process")
+              exit(0)
+
+          with open("schedule.json", "r") as f:
+              schedule = json.load(f)
+
+          updated = False
+          existing_urls = set()
+
+          for course in schedule.get("courses", []):
+              for entry in course.get("schedule", []):
+                  if entry.get("zoom_url"):
+                      existing_urls.add(entry["zoom_url"])
+
+          for issue in issues:
+              num = issue["number"]
+              body = issue.get("body", "")
+
+              try:
+                  data = json.loads(body)
+              except (json.JSONDecodeError, TypeError):
+                  blob = re.search(r'\{.*\}', body, re.DOTALL)
+                  if blob:
+                      try:
+                          data = json.loads(blob.group(0))
+                      except (json.JSONDecodeError, TypeError):
+                          print(f"  #{num}: invalid JSON in body, closing")
+                          api("PATCH", f"issues/{num}", {"state": "closed"})
+                          continue
+                  else:
+                      print(f"  #{num}: no JSON found in body, closing")
+                      api("PATCH", f"issues/{num}", {"state": "closed"})
+                      continue
+
+              course_name = data.get("course", "")
+              week = data.get("week")
+              component = data.get("component", "")
+              start_date = data.get("start_date", "")
+              start_time_ist = data.get("start_time_ist", "")
+              zoom_url = data.get("zoom_url", "").strip()
+
+              if not zoom_url or not zoom_url.startswith("http"):
+                  print(f"  #{num}: invalid zoom_url, closing")
+                  api("PATCH", f"issues/{num}", {"state": "closed"})
+                  continue
+
+              if zoom_url in existing_urls:
+                  print(f"  #{num}: zoom_url already exists in schedule, closing")
+                  api("PATCH", f"issues/{num}", {"state": "closed"})
+                  continue
+
+              found = False
+              for course in schedule.get("courses", []):
+                  if course.get("course_name") == course_name:
+                      for entry in course.get("schedule", []):
+                          if (
+                              entry.get("week") == week
+                              and entry.get("component") == component
+                              and entry.get("start_date") == start_date
+                              and entry.get("start_time_ist") == start_time_ist
+                          ):
+                              entry["zoom_url"] = zoom_url
+                              existing_urls.add(zoom_url)
+                              found = True
+                              updated = True
+                              print(
+                                  f"  #{num}: added zoom_url for "
+                                  f"{course_name} W{week} {component}"
+                              )
+                              break
+                      if found:
+                          break
+
+              if not found:
+                  print(
+                      f"  #{num}: no matching entry found for "
+                      f"{course_name} W{week} {component}"
+                  )
+
+              api("PATCH", f"issues/{num}", {"state": "closed"})
+
+          if updated:
+              with open("schedule.json", "w") as f:
+                  json.dump(schedule, f, indent=2, ensure_ascii=False)
+                  f.write("\n")
+              print("Updated schedule.json")
+          PYEOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "Zoom Link Bot"
+          git config user.email "zoom-bot@github.com"
+          git add schedule.json
+          git diff --staged --quiet || git commit -m "Update schedule.json with zoom links"
+          git push
